@@ -8,19 +8,14 @@ import javax.swing.JInternalFrame;
 import javax.swing.JToolBar;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-
 import java.awt.Font;
 import java.awt.GridLayout;
-
 import javax.swing.JButton;
 import javax.swing.JSplitPane;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -30,6 +25,7 @@ public class myFrame extends JFrame {
 	private JPanel contentPane;
 	private JPasswordField passwordField;
 	private JTextField textField;
+
 	/**
 	 * Launch the application.
 	 */
@@ -90,8 +86,7 @@ public class myFrame extends JFrame {
 		btnLogin_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				textField.setText("");
-				passwordField.setText("");
+				System.out.println("You have clicked RESET!");
 			}
 		});
 		btnLogin_1.addActionListener(new ActionListener() {
@@ -102,14 +97,9 @@ public class myFrame extends JFrame {
 		
 		JButton btnLogin_2 = new JButton("Login");
 		btnLogin_2.addMouseListener(new MouseAdapter() {
-			private String username;
-			private String password;
-
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				this.username = textField.getText();
-				this.password = passwordField.getText();
-				System.out.println("You logged in!");
+				System.out.println("You just tried to login!");
 			}
 		});
 		splitPane.setRightComponent(btnLogin_2);
