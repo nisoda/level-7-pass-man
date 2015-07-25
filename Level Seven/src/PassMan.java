@@ -4,8 +4,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
-import java.util.InputMismatchException;
-import java.util.Scanner;
 
 public class PassMan {
 	static int input = 0;
