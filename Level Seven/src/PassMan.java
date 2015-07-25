@@ -4,8 +4,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
-import java.util.InputMismatchException;
-import java.util.Scanner;
 
 public class PassMan {
 	static int input = 0;
@@ -40,7 +38,10 @@ public class PassMan {
 			//start the timer
 			starttime = System.currentTimeMillis();
 			stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery("Select * From AnimeTable");
+			
+			// What is our table name, we have two do we need to change
+			// PASSMAN to whichever table we use.
+			ResultSet rs = stmt.executeQuery("Select * From PASSMAN");
 			ResultSetMetaData rsmd = rs.getMetaData();
 			//end the timer
 			endtime = System.currentTimeMillis();
@@ -52,10 +53,10 @@ public class PassMan {
 			// ID, and MASTER_USER goes here maybe?
 		        String website = rs.getString("Website");
 		        String username = rs.getString("Username");
-		        String password = rs.getInt("Password");
+		        String password = rs.getString("Password");
 		         
 		        // print the results
-		        System.out.format("%s\n%s\n%s\n%s\n%s\n", "Website: " + site, "Username: " + username, "Password: " + password);
+		        System.out.format("%s\n%s\n%s\n%s\n%s\n", "Website: " + website, "Username: " + username, "Password: " + password);
 				System.out.println();
 			}
 			
