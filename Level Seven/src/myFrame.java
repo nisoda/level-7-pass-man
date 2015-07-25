@@ -46,7 +46,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import org.eclipse.wb.swing.FocusTraversalOnArray;
-import org.eclipse.wb.swing.passManagerWindow;
 
 import java.awt.Component;
 
@@ -118,17 +117,20 @@ public class myFrame extends JFrame {
 		JButton btnLogin = new JButton("Login");
 		final JLabel errorMessage = new JLabel("");
 		errorMessage.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		
 		btnLogin.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				PassMan pm = new PassMan();
 				username = txtUsername.getText();
-				password = pwdPassword.getText();
-				if(username.equals("root") && password.toString().equals("root")){
+				password = String.valueOf(pwdPassword.getPassword()); 
+				if(PassMan.authenticateLogin(username, password)){
 					dispose();
-					passManagerWindow pmw = new passManagerWindow();
+					passManagerWindow pmw = new passManagerWindow(username);
 				}
 				else{
-					errorMessage.setText("Incorrect Password");
+					errorMessage.setText("Incorrect password.");
 				}
 			}
 		});

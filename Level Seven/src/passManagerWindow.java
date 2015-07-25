@@ -1,5 +1,3 @@
-package org.eclipse.wb.swing;
-
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
@@ -45,6 +43,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.JMenuBar;
 
 import java.awt.Component;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -64,7 +64,7 @@ public class passManagerWindow extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public passManagerWindow() {
+	public passManagerWindow(String username) {
 		setVisible(true);
 		setTitle("Password Manager");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -74,16 +74,13 @@ public class passManagerWindow extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
-		String[] columns = {"URL", "Username", "Password"};
-		data = new Object[][]{
-				{"http://www.donothingfor2minutes.com","Heach1963","aifiRa0ed0a"},
-				{"http://weavesilk.com","Redet1983","Giechaiph3ee"}
-		};
+		String[] columns = {"Website", "Username", "Password"};
 		
 		JButton btnNewButton = new JButton("Add");
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Not connected to DB, maybe create a window for input?
 				defaultModel.addRow(new Object[]{"","",""});
 			}
 		});
@@ -173,26 +170,30 @@ public class passManagerWindow extends JFrame {
 		);
 		
 		table = new JTable();
-		defaultModel = new DefaultTableModel((
-				new Object[][] {
-						{"http://www.donothingfor2minutes.com", "Heach1963", "aifiRa0ed0a"},
-						{"http://weavesilk.com", "Redet1983", "Giechaiph3ee"},
-						{"http://thequietplaceproject.com/thethoughtsroom/", "Appose", "OhmyGOD"},
-					}),
-					new String[] {
-						"URL", "Username", "Password"
-					});
-		table.setAutoCreateRowSorter(true);
-		table.setModel(new DefaultTableModel(
-			new Object[][] {
-				{"http://www.donothingfor2minutes.com", "Heach1963", "aifiRa0ed0a"},
-				{"http://weavesilk.com", "Redet1983", "Giechaiph3ee"},
-				{"http://thequietplaceproject.com/thethoughtsroom/", "Appose", "OhmyGOD"},
-			},
-			new String[] {
-				"URL", "Username", "Password"
+		defaultModel = new DefaultTableModel();
+		defaultModel.setColumnIdentifiers(new String[] {"Webiste", "Username", "Password"});
+		
+		//Get data
+		PassMan pm = new PassMan();
+		ResultSet rs = PassMan.viewAllStored(username);
+
+		try {
+			if(rs.first()) {
+				do {
+					String[] rowData = new String[3]; 
+					for(int i = 0 ; i < 3 ; i++) {
+						rowData[i] = rs.getString(i + 1);
+					}
+					defaultModel.addRow(rowData);
+				} while (rs.next());				
 			}
-		));
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}	
+		
+		table.setAutoCreateRowSorter(true);
+		table.setModel(defaultModel);
 		table.getColumnModel().getColumn(0).setPreferredWidth(270);
 		scrollPane.setViewportView(table);
 		contentPane.setLayout(gl_contentPane);
