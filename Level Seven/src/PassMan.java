@@ -29,7 +29,7 @@ public class PassMan {
 		try {
 			starttimeconnect = System.currentTimeMillis();
 			// Don't forget to change the password, it's at the end of the following line
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/PASSMAN", "root", "/**password goes here*/");
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/PASSMAN", "root", "password");
 			
 			//end timer
 			endtimeconnect = System.currentTimeMillis();
@@ -40,7 +40,7 @@ public class PassMan {
 			//start the timer
 			starttime = System.currentTimeMillis();
 			stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery("Select * From AnimeTable");
+			ResultSet rs = stmt.executeQuery("Select * From stored_accounts");
 			ResultSetMetaData rsmd = rs.getMetaData();
 			//end the timer
 			endtime = System.currentTimeMillis();
@@ -50,12 +50,12 @@ public class PassMan {
 
 			while (rs.next()) {
 			// ID, and MASTER_USER goes here maybe?
-		        String website = rs.getString("Website");
+		        String website = rs.getString("Site");
 		        String username = rs.getString("Username");
-		        String password = rs.getInt("Password");
+		        String password = rs.getString("Password");
 		         
 		        // print the results
-		        System.out.format("%s\n%s\n%s\n%s\n%s\n", "Website: " + site, "Username: " + username, "Password: " + password);
+		        System.out.format("%s\n%s\n%s\n%s\n%s\n", "Website: " + website, "Username: " + username, "Password: " + password);
 				System.out.println();
 			}
 			
@@ -70,8 +70,6 @@ public class PassMan {
 	}
 	
 	public static void main(String[] args) {
-		// Main program where it runs stuff
-		// This is a test push
 		runSql();
 	}
 
