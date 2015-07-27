@@ -103,30 +103,11 @@ public class passManagerWindow extends JFrame {
 		btnSearch_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
-				TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(defaultModel);
-				RowFilter<DefaultTableModel, Object> firstFilter = null;
-				RowFilter<DefaultTableModel, Object> secondFilter = null;
-				RowFilter<DefaultTableModel, Object> thirdFilter = null;
-				List<RowFilter<DefaultTableModel,Object>> filters = new ArrayList<RowFilter<DefaultTableModel,Object>>();
-				RowFilter<DefaultTableModel, Object> compoundRowFilter = null;
-				
-				sorter.setRowFilter(compoundRowFilter);
-				table.setRowSorter(sorter);
-				String searches = textField.getText();
-				
-				try {
-				    firstFilter = RowFilter.regexFilter(searches, 0);
-				    secondFilter = RowFilter.regexFilter(searches, 1);
-				    thirdFilter = RowFilter.regexFilter(searches, 2);
-				    filters.add(firstFilter);
-				    filters.add(secondFilter);
-				    filters.add(thirdFilter);
-				    compoundRowFilter = RowFilter.andFilter(filters); // you may also choose the OR filter
-				} catch (java.util.regex.PatternSyntaxException pse) {
-					errorMessage.setText(String.format("Unable to find %s", searches));
-				}
-				sorter.setRowFilter(compoundRowFilter);
+				String search = textField.getText();
+				final TableRowSorter<DefaultTableModel> sorter;
+				sorter = new TableRowSorter<DefaultTableModel>(defaultModel);
+				table.setRowSorter(sorter); 
+				sorter.setRowFilter(RowFilter.regexFilter("(?i)" + search));
 			}
 		});
 		
