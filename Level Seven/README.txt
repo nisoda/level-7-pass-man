@@ -4,6 +4,8 @@ Assignment 3 (First Implementation)
 Team: Level Seven
 Project: Password Manager
 
+*** Test data instructions and scripts are include in this repository: level-7-pass-man/data-load ***
+
 Who Did What:
 Nhuc Chau
 - Wrote the summary for our static analysis for CheckStyle
