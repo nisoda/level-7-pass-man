@@ -46,7 +46,7 @@ public class LoginForm extends JDialog {
 		contentPanel.setBackground(new Color(30, 144, 255));
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		setVisible(true);
+		setModal(true);
 		contentPanel.setLayout(new MigLayout("", "[][][][][grow]", "[][][][][][][][]"));
 		{
 			JLabel lblSite = new JLabel("Site");
@@ -113,7 +113,7 @@ public class LoginForm extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
-		setModal(true);
+		setVisible(true);
 	}
 	
 	public String getUser(){

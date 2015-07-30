@@ -86,7 +86,7 @@ public class passManagerWindow extends JFrame {
 		
 		String[] columns = {"Website", "Username", "Password"};
 		//Get data
-		PassMan pm = new PassMan();
+		final PassMan pm = new PassMan();
 		ResultSet rs = PassMan.viewAllStored(username);
 		final JLabel message = new JLabel("");
 		
@@ -96,10 +96,20 @@ public class passManagerWindow extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				// Not connected to DB, maybe create a window for input?
 				LoginForm lf = new LoginForm();
+				boolean success = false;
 				user = lf.getUser();
 				password = lf.getPass();
 				url = lf.getURL();
-				message.setText("Successfully added!");
+				
+				try {
+					success = pm.addEntry(user, password, url);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				if(success){
+					message.setText("Successfully added!");
+				}
 			}
 		});
 		
@@ -170,7 +180,7 @@ public class passManagerWindow extends JFrame {
 		
 		table = new JTable();
 		defaultModel = new DefaultTableModel();
-		defaultModel.setColumnIdentifiers(new String[] {"Webiste", "Username", "Password"});
+		defaultModel.setColumnIdentifiers(new String[] {"Website", "Username", "Password"});
 		try {
 			if(rs.first()) {
 				do {
