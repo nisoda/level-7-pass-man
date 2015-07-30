@@ -35,6 +35,7 @@ public class LoginForm extends JDialog {
 	private String username;
 	private String password;
 	private String url;
+	private boolean enteredData;
 
 	/**
 	 * Create the dialog.
@@ -94,6 +95,7 @@ public class LoginForm extends JDialog {
 						url = tfURL.getText();
 						username = tfUsername.getText();
 						password = String.valueOf(tfPassword.getPassword()); 
+						enteredData = true;
 						dispose();
 					}
 				});
@@ -106,6 +108,7 @@ public class LoginForm extends JDialog {
 				cancelButton.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent arg0) {
+						enteredData = false;
 						dispose();
 					}
 				});
@@ -124,6 +127,9 @@ public class LoginForm extends JDialog {
 	}
 	public String getURL(){
 		return url;
+	}
+	public boolean enteredData(){
+		return enteredData;
 	}
 
 }

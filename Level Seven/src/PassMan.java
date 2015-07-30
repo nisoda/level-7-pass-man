@@ -151,5 +151,18 @@ public class PassMan {
 		
 		return true;
 	}
+	
+	public boolean delEntry(String user, String pw, String url) throws SQLException{
+		String insertString = "DELETE FROM stored_accounts " +
+				" where MASTER_USER = ? and SITE = ? and USERNAME = ? and PASSWORD = ?";
+		PreparedStatement insertquery = connection.prepareStatement(insertString);
+		insertquery.setString(1, master_user);
+		insertquery.setString(2, url);
+		insertquery.setString(3, user);
+		insertquery.setString(4,pw);
+		insertquery.executeUpdate();
+		
+		return true;
+	}
 
 }

@@ -101,14 +101,17 @@ public class passManagerWindow extends JFrame {
 				password = lf.getPass();
 				url = lf.getURL();
 				
-				try {
-					success = pm.addEntry(user, password, url);
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				if(success){
-					message.setText("Successfully added!");
+				if(lf.enteredData()){
+					try {
+						success = pm.addEntry(user, password, url);
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					if(success){
+						message.setText("Successfully added!");
+						defaultModel.addRow(new Object[]{url,user,password});
+					}
 				}
 			}
 		});
@@ -117,10 +120,20 @@ public class passManagerWindow extends JFrame {
 		btnDelete_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				boolean success = false;
 				int rowNum = table.getSelectedRow();
 				url = (String) table.getValueAt(rowNum, 0);
 				user = (String) table.getValueAt(rowNum,1);
 				password = (String) table.getValueAt(rowNum,2);
+				try {
+					success = pm.delEntry(user, password, url);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				if(success){
+					message.setText("Deleted row");
+					defaultModel.removeRow(rowNum);
+				}
 			}
 		});
 		
