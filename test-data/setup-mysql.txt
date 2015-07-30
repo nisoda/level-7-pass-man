@@ -1,0 +1,21 @@
+Setup local MySQL database with test data:
+
+// Code is hard-coded to work with certain DB, table, and user names/passwords
+
+* Install MySQL Workbench 6.3.4 and MySQLInstaller 5.6.25
+
+* Open MySQL Installer, click 'Add' button 
+* Install 'MySQL Server 5.6'
+* * Default connection: passman
+* * Root password: password
+* * Create DBA user:  passmandb	password: passmandb
+
+* Open MySQL Workbench
+* Sign in to DB connection (as above)
+* Create schema in passman connection using the following:
+* * Open the 'PASSMANDB.mwb' file (included in this directory)
+* * In toolbar, select 'Database' -> 'Forward Engineer'
+* * Use the wizard to create schema using PASSMANDB.mwb
+* * Once schema is created, open 'data-load-scripts.sql' file (included in this directory)
+* * Double-click on 'passman' database in databases list to select, then run the script (on Windows: Ctrl + Shift + Enter)
+* *Verify that the script runs without errors
