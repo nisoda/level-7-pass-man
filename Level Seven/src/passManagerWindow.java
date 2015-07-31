@@ -1,7 +1,9 @@
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -51,6 +53,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.JTextPane;
+
+import java.awt.Panel;
 
 public class passManagerWindow extends JFrame {
 
@@ -59,12 +64,17 @@ public class passManagerWindow extends JFrame {
 	private JTable table;
 	private JPopupMenu popup;
 	private Object[][] data;
-	private JTextField textField;
-	
+	private JTextField searchField;
+	private JFrame frame;
+	private PassMan pm;
+	private String user;
+	private String password;
+	private String url;
 	/**
 	 * Create the frame.
 	 */
 	public passManagerWindow(String username) {
+		
 		setVisible(true);
 		setTitle("Password Manager");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -75,13 +85,34 @@ public class passManagerWindow extends JFrame {
 		setContentPane(contentPane);
 		
 		String[] columns = {"Website", "Username", "Password"};
+		//Get data
+		final PassMan pm = new PassMan();
+		ResultSet rs = PassMan.viewAllStored(username);
+		final JLabel message = new JLabel("");
 		
 		JButton btnNewButton = new JButton("Add");
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// Not connected to DB, maybe create a window for input?
-				defaultModel.addRow(new Object[]{"","",""});
+				LoginForm lf = new LoginForm();
+				boolean success = false;
+				user = lf.getUser();
+				password = lf.getPass();
+				url = lf.getURL();
+				
+				if(lf.enteredData()){
+					try {
+						success = pm.addEntry(user, password, url);
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					if(success){
+						message.setText("Successfully added!");
+						defaultModel.addRow(new Object[]{url,user,password});
+					}
+				}
 			}
 		});
 		
@@ -89,62 +120,53 @@ public class passManagerWindow extends JFrame {
 		btnDelete_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				boolean success = false;
 				int rowNum = table.getSelectedRow();
-				defaultModel.removeRow(rowNum);
+				url = (String) table.getValueAt(rowNum, 0);
+				user = (String) table.getValueAt(rowNum,1);
+				password = (String) table.getValueAt(rowNum,2);
+				try {
+					success = pm.delEntry(user, password, url);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				if(success){
+					message.setText("Deleted row");
+					defaultModel.removeRow(rowNum);
+				}
 			}
 		});
 		
-		textField = new JTextField();
-		textField.setColumns(10);
-		
-		final JLabel errorMessage = new JLabel("");
+		searchField = new JTextField();
+		searchField.setColumns(10);
 		
 		JButton btnSearch_1 = new JButton("Search");
 		btnSearch_1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
-				TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(defaultModel);
-				RowFilter<DefaultTableModel, Object> firstFilter = null;
-				RowFilter<DefaultTableModel, Object> secondFilter = null;
-				RowFilter<DefaultTableModel, Object> thirdFilter = null;
-				List<RowFilter<DefaultTableModel,Object>> filters = new ArrayList<RowFilter<DefaultTableModel,Object>>();
-				RowFilter<DefaultTableModel, Object> compoundRowFilter = null;
-				
-				sorter.setRowFilter(compoundRowFilter);
-				table.setRowSorter(sorter);
-				String searches = textField.getText();
-				
-				try {
-				    firstFilter = RowFilter.regexFilter(searches, 0);
-				    secondFilter = RowFilter.regexFilter(searches, 1);
-				    thirdFilter = RowFilter.regexFilter(searches, 2);
-				    filters.add(firstFilter);
-				    filters.add(secondFilter);
-				    filters.add(thirdFilter);
-				    compoundRowFilter = RowFilter.andFilter(filters); // you may also choose the OR filter
-				} catch (java.util.regex.PatternSyntaxException pse) {
-					errorMessage.setText(String.format("Unable to find %s", searches));
-				}
-				sorter.setRowFilter(compoundRowFilter);
+				String search = searchField.getText();
+				final TableRowSorter<DefaultTableModel> sorter;
+				sorter = new TableRowSorter<DefaultTableModel>(defaultModel);
+				table.setRowSorter(sorter); 
+				sorter.setRowFilter(RowFilter.regexFilter("(?i)" + search));
 			}
 		});
 		
 		JScrollPane scrollPane = new JScrollPane();
 		
 
-		errorMessage.setHorizontalAlignment(SwingConstants.CENTER);
+		message.setHorizontalAlignment(SwingConstants.CENTER);
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addComponent(errorMessage, GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+						.addComponent(message, GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
 						.addComponent(btnSearch_1, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
 						.addComponent(btnNewButton, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
 						.addComponent(btnDelete_1, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
-						.addComponent(textField, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
+						.addComponent(searchField, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
 					.addContainerGap())
@@ -156,27 +178,22 @@ public class passManagerWindow extends JFrame {
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
 						.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 532, GroupLayout.PREFERRED_SIZE)
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(searchField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addGap(14)
 							.addComponent(btnSearch_1, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
 							.addGap(26)
-							.addComponent(errorMessage, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED, 265, Short.MAX_VALUE)
+							.addComponent(message, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED, 284, Short.MAX_VALUE)
 							.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
 							.addGap(15)
 							.addComponent(btnDelete_1, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
 							.addGap(20)))
-					.addContainerGap(94, Short.MAX_VALUE))
+					.addContainerGap(75, Short.MAX_VALUE))
 		);
 		
 		table = new JTable();
 		defaultModel = new DefaultTableModel();
-		defaultModel.setColumnIdentifiers(new String[] {"Webiste", "Username", "Password"});
-		
-		//Get data
-		PassMan pm = new PassMan();
-		ResultSet rs = PassMan.viewAllStored(username);
-
+		defaultModel.setColumnIdentifiers(new String[] {"Website", "Username", "Password"});
 		try {
 			if(rs.first()) {
 				do {
@@ -191,28 +208,13 @@ public class passManagerWindow extends JFrame {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}	
-		
 		table.setAutoCreateRowSorter(true);
 		table.setModel(defaultModel);
 		table.getColumnModel().getColumn(0).setPreferredWidth(270);
 		scrollPane.setViewportView(table);
+		
+		JPanel panel = new JPanel();
+		scrollPane.setRowHeaderView(panel);
 		contentPane.setLayout(gl_contentPane);
-	}
-	private static void addPopup(Component component, final JPopupMenu popup) {
-		component.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					showMenu(e);
-				}
-			}
-			public void mouseReleased(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					showMenu(e);
-				}
-			}
-			private void showMenu(MouseEvent e) {
-				popup.show(e.getComponent(), e.getX(), e.getY());
-			}
-		});
 	}
 }

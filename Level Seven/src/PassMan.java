@@ -1,4 +1,5 @@
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -14,6 +15,7 @@ public class PassMan {
 	static Long starttime;
 	static Long endtime;
 	static Long totaltime;
+	private static String master_user;
 	// We'll have to change this, I assume it's probably the MASTER_USER
 	// and MASTER_PASS verification
 	//static String userInput; //Studio, Title, Type
@@ -93,6 +95,7 @@ public class PassMan {
 				totaltime = endtime - starttime;
 
 				if(rs.first()) {
+					master_user = username;
 					authenticated = true;
 				}
 			} catch (SQLException e) {
@@ -133,6 +136,33 @@ public class PassMan {
 			System.out.println("You are not connected.");
 			return null;
 		}
+	}
+	
+	public boolean addEntry(String user, String pw, String url) throws SQLException{
+		String insertString = "INSERT INTO stored_accounts " +
+				"(MASTER_USER,SITE,USERNAME,PASSWORD)" +
+				"values(?,?,?,?)";
+		PreparedStatement insertquery = connection.prepareStatement(insertString);
+		insertquery.setString(1, master_user);
+		insertquery.setString(2, url);
+		insertquery.setString(3, user);
+		insertquery.setString(4,pw);
+		insertquery.executeUpdate();
+		
+		return true;
+	}
+	
+	public boolean delEntry(String user, String pw, String url) throws SQLException{
+		String insertString = "DELETE FROM stored_accounts " +
+				" where MASTER_USER = ? and SITE = ? and USERNAME = ? and PASSWORD = ?";
+		PreparedStatement insertquery = connection.prepareStatement(insertString);
+		insertquery.setString(1, master_user);
+		insertquery.setString(2, url);
+		insertquery.setString(3, user);
+		insertquery.setString(4,pw);
+		insertquery.executeUpdate();
+		
+		return true;
 	}
 
 }
