@@ -1,10 +1,49 @@
 README.txt
 
-Assignment 3 (First Implementation)
+Assignment 4 (Version 2)
 Team: Level Seven
 Project: Password Manager
 
-*** Test data instructions and scripts are include in this repository: level-7-pass-man/test-data ***
+*** Test data instructions and scripts are include in this
+    repository: level-7-pass-man/test-data ***
+
+Who Did What:
+Nhuc Chau
+- Identified SQL Injection vulnerability
+- Implemented Add/Delete features
+- Fixed search function
+
+Nicole Isoda
+- Reviewed/managed issues and pull requests
+- Researched tools being used for updates and newly
+  reported vulnerabilities
+- Compiled group findings for report submission
+
+Lauren Ogawa
+- Patched SQL Injection vulnerability
+- Researched tools for use in dynamic testing
+- Compiled group experiences for dynamic testing
+
+What Is Not Yet Completed:
+- Patch Buffer Overflow vulnerability
+- Patch Sensitive Data Exposure vulnerability
+
+- Implement/remove “Lost Your Password" feature
+- Implement "Add New User" feature
+- Adding or registering new users
+
+- Identify/patch vulnerabilities	
+
+------------------------------------------------------------------------------------------------------------
+
+README.txt
+
+Assignment 3 (Version 1)
+Team: Level Seven
+Project: Password Manager
+
+*** Test data instructions and scripts are include in this
+    repository: level-7-pass-man/test-data ***
 
 Who Did What:
 Nhuc Chau
