@@ -18,16 +18,17 @@ public class PassMan {
 	private static String master_user;
 	// We'll have to change this, I assume it's probably the MASTER_USER
 	// and MASTER_PASS verification
-	//static String userInput; //Studio, Title, Type
-	//static int userNumber; //Year, Number of Episodes
+	// static String userInput; //Studio, Title, Type
+	// static int userNumber; //Year, Number of Episodes
 
-	public PassMan () {
+	public PassMan() {
 		try {
 			starttimeconnect = System.currentTimeMillis();
-			// Don't forget to change the password, it's at the end of the following line
+			// Don't forget to change the password, it's at the end of the
+			// following line
 			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/PASSMAN", "root", "password");
 
-			//end timer
+			// end timer
 			endtimeconnect = System.currentTimeMillis();
 			totaltimeconnect = endtimeconnect - starttimeconnect;
 		} catch (SQLException e) {
@@ -39,18 +40,18 @@ public class PassMan {
 	/**
 	 * Display the entire list
 	 */
-	public static void runSql(){
-		if(connection != null) {
+	public static void runSql() {
+		if (connection != null) {
 			try {
 				Statement stmt = null;
 
-				//start the timer
+				// start the timer
 				starttime = System.currentTimeMillis();
 
 				stmt = connection.createStatement();
 				ResultSet rs = stmt.executeQuery("Select * From stored_accounts");
 				ResultSetMetaData rsmd = rs.getMetaData();
-				//end the timer
+				// end the timer
 				endtime = System.currentTimeMillis();
 				totaltime = endtime - starttime;
 
@@ -63,7 +64,8 @@ public class PassMan {
 					String password = rs.getString("Password");
 
 					// print the results
-					System.out.format("%s\n%s\n%s\n%s\n%s\n", "Website: " + website, "Username: " + username, "Password: " + password);
+					System.out.format("%s\n%s\n%s\n%s\n%s\n", "Website: " + website, "Username: " + username,
+							"Password: " + password);
 					System.out.println();
 				}
 
@@ -78,23 +80,31 @@ public class PassMan {
 			System.out.println("You are not connected.");
 		}
 	}
-	
+
 	public static boolean authenticateLogin(String username, String password) {
 		boolean authenticated = false;
-		if(connection != null) {
+		if (connection != null) {
 			try {
-				Statement stmt = null;
 
-				//start the timer
+				// This prevents SQL injections as it uses correctly
+				// parameterized queries
+				PreparedStatement stmt = null;
+
+				// Start the timer
 				starttime = System.currentTimeMillis();
 
-				stmt = connection.createStatement();
-				ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM USER_LOGINS U WHERE U.USERNAME=\"%s\" AND U.PASSWORD=\"%s\"", username, password));
-				//end the timer
+				// By using bind variables (question marks) and setString method
+				// SQL injection can be prevented
+				stmt = connection.prepareStatement("SELECT * FROM USER_LOGINS U WHERE U.USERNAME=? AND U.PASSWORD=?");
+				stmt.setString(1, username);
+				stmt.setString(2, password);
+				ResultSet rs = stmt.executeQuery();
+
+				// End the timer
 				endtime = System.currentTimeMillis();
 				totaltime = endtime - starttime;
 
-				if(rs.first()) {
+				if (rs.first()) {
 					master_user = username;
 					authenticated = true;
 				}
@@ -102,66 +112,67 @@ public class PassMan {
 				System.out.println("Connection Failed! Check output console");
 				e.printStackTrace();
 			}
-			
+
 			return authenticated;
-			
+
 		} else {
 			System.out.println("You are not connected.");
 			return false;
 		}
 	}
-	
+
 	public static ResultSet viewAllStored(String username) {
 		ResultSet rs = null;
-		if(connection != null) {
+		if (connection != null) {
 			try {
 				Statement stmt = null;
 
-				//start the timer
+				// start the timer
 				starttime = System.currentTimeMillis();
 
 				stmt = connection.createStatement();
-				rs = stmt.executeQuery(String.format("SELECT S.SITE, S.USERNAME, S.PASSWORD FROM STORED_ACCOUNTS S WHERE S.MASTER_USER=\"%s\"", username));
-				//end the timer
+				rs = stmt.executeQuery(String.format(
+						"SELECT S.SITE, S.USERNAME, S.PASSWORD FROM STORED_ACCOUNTS S WHERE S.MASTER_USER=\"%s\"",
+						username));
+				// end the timer
 				endtime = System.currentTimeMillis();
 				totaltime = endtime - starttime;
 			} catch (SQLException e) {
 				System.out.println("Connection Failed! Check output console");
 				e.printStackTrace();
 			}
-			
+
 			return rs;
-			
+
 		} else {
 			System.out.println("You are not connected.");
 			return null;
 		}
 	}
-	
-	public boolean addEntry(String user, String pw, String url) throws SQLException{
-		String insertString = "INSERT INTO stored_accounts " +
-				"(MASTER_USER,SITE,USERNAME,PASSWORD)" +
-				"values(?,?,?,?)";
+
+	public boolean addEntry(String user, String pw, String url) throws SQLException {
+		String insertString = "INSERT INTO stored_accounts " + "(MASTER_USER,SITE,USERNAME,PASSWORD)"
+				+ "values(?,?,?,?)";
 		PreparedStatement insertquery = connection.prepareStatement(insertString);
 		insertquery.setString(1, master_user);
 		insertquery.setString(2, url);
 		insertquery.setString(3, user);
-		insertquery.setString(4,pw);
+		insertquery.setString(4, pw);
 		insertquery.executeUpdate();
-		
+
 		return true;
 	}
-	
-	public boolean delEntry(String user, String pw, String url) throws SQLException{
-		String insertString = "DELETE FROM stored_accounts " +
-				" where MASTER_USER = ? and SITE = ? and USERNAME = ? and PASSWORD = ?";
+
+	public boolean delEntry(String user, String pw, String url) throws SQLException {
+		String insertString = "DELETE FROM stored_accounts "
+				+ " where MASTER_USER = ? and SITE = ? and USERNAME = ? and PASSWORD = ?";
 		PreparedStatement insertquery = connection.prepareStatement(insertString);
 		insertquery.setString(1, master_user);
 		insertquery.setString(2, url);
 		insertquery.setString(3, user);
-		insertquery.setString(4,pw);
+		insertquery.setString(4, pw);
 		insertquery.executeUpdate();
-		
+
 		return true;
 	}
 
