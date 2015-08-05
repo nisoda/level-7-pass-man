@@ -95,8 +95,9 @@ public class passManagerWindow extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// Not connected to DB, maybe create a window for input?
+				message.setText("");
 				LoginForm lf = new LoginForm();
-				boolean success = false;
+				int success = -1;
 				user = lf.getUser();
 				password = lf.getPass();
 				url = lf.getURL();
@@ -105,12 +106,18 @@ public class passManagerWindow extends JFrame {
 					try {
 						success = pm.addEntry(user, password, url);
 					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
+						message.setText("Error in your entry, please contact your administrator.");
 						e1.printStackTrace();
 					}
-					if(success){
+					if(success == 0){
 						message.setText("Successfully added!");
 						defaultModel.addRow(new Object[]{url,user,password});
+					}
+					else if(success == 1){
+						message.setText("Please follow instructions.");
+					}
+					else if(success == 2){
+						message.setText("An empty field was detected");
 					}
 				}
 			}
@@ -121,16 +128,21 @@ public class passManagerWindow extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				boolean success = false;
-				int rowNum = table.getSelectedRow();
-				url = (String) table.getValueAt(rowNum, 0);
-				user = (String) table.getValueAt(rowNum,1);
-				password = (String) table.getValueAt(rowNum,2);
+				int rowNum = -1;
+				try{
+					rowNum = table.getSelectedRow();
+					url = (String) table.getValueAt(rowNum, 0);
+					user = (String) table.getValueAt(rowNum,1);
+					password = (String) table.getValueAt(rowNum,2);
+				}catch(IndexOutOfBoundsException ob){
+					message.setText("Nothing was selected");
+				}
 				try {
 					success = pm.delEntry(user, password, url);
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
-				if(success){
+				if(success && rowNum >= 0){
 					message.setText("Deleted row");
 					defaultModel.removeRow(rowNum);
 				}

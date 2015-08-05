@@ -55,6 +55,10 @@ public class LoginForm extends JDialog {
 			contentPanel.add(lblSite, "cell 0 0 5 1,alignx center,aligny center");
 		}
 		{
+			JLabel lblNewLabel = new JLabel("Limit your url to 240 characters and username/password to 40");
+			contentPanel.add(lblNewLabel, "cell 1 1 4 1");
+		}
+		{
 			JLabel lbURL = new JLabel("URL");
 			lbURL.setFont(new Font("Tahoma", Font.BOLD, 15));
 			contentPanel.add(lbURL, "cell 1 3");
