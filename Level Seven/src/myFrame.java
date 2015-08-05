@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -88,11 +89,11 @@ public class myFrame extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
-		JLabel lblHelloWorld = new JLabel("Level Seven");
-		lblHelloWorld.setForeground(Color.WHITE);
-		lblHelloWorld.setBackground(Color.WHITE);
-		lblHelloWorld.setFont(new Font("Tahoma", Font.PLAIN, 45));
-		lblHelloWorld.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lblTitle = new JLabel("Level Seven");
+		lblTitle.setForeground(Color.WHITE);
+		lblTitle.setBackground(Color.WHITE);
+		lblTitle.setFont(new Font("Tahoma", Font.PLAIN, 45));
+		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		txtUsername = new JTextField();
 		txtUsername.addMouseListener(new MouseAdapter() {
@@ -105,6 +106,7 @@ public class myFrame extends JFrame {
 		txtUsername.setColumns(10);
 		
 		pwdPassword = new JPasswordField("Password");
+		pwdPassword.setPreferredSize(new Dimension(274,23));
 		pwdPassword.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -125,12 +127,16 @@ public class myFrame extends JFrame {
 				PassMan pm = new PassMan();
 				username = txtUsername.getText();
 				password = String.valueOf(pwdPassword.getPassword()); 
-				if(PassMan.authenticateLogin(username, password)){
+				int pass = pm.authenticateLogin(username, password);
+				if(pass == 0){
 					dispose();
 					passManagerWindow pmw = new passManagerWindow(username);
 				}
+				else if(pass == 1){
+					errorMessage.setText("Username/Password too long");
+				}
 				else{
-					errorMessage.setText("Incorrect password.");
+					errorMessage.setText("Incorrect password");
 				}
 			}
 		});
@@ -150,7 +156,7 @@ public class myFrame extends JFrame {
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addContainerGap()
-							.addComponent(lblHelloWorld, GroupLayout.PREFERRED_SIZE, 405, GroupLayout.PREFERRED_SIZE))
+							.addComponent(lblTitle, GroupLayout.PREFERRED_SIZE, 405, GroupLayout.PREFERRED_SIZE))
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGap(71)
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
@@ -166,7 +172,7 @@ public class myFrame extends JFrame {
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(lblHelloWorld, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
+					.addComponent(lblTitle, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
 					.addGap(46)
 					.addComponent(txtUsername, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
@@ -180,7 +186,7 @@ public class myFrame extends JFrame {
 					.addContainerGap(18, Short.MAX_VALUE))
 		);
 		contentPane.setLayout(gl_contentPane);
-		contentPane.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{lblHelloWorld, txtUsername, pwdPassword, btnLogin, btnNewButton}));
+		contentPane.setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{lblTitle, txtUsername, pwdPassword, btnLogin, btnNewButton}));
 	}
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
