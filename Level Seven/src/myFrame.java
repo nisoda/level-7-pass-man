@@ -24,6 +24,7 @@ import java.awt.Color;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 
 import java.awt.Component;
+import java.sql.SQLException;
 
 
 public class myFrame extends JFrame {
@@ -33,6 +34,7 @@ public class myFrame extends JFrame {
 	private JPasswordField pwdPassword;
 	protected String username;
 	protected String password;
+	private PassMan pm;
 
 	/**
 	 * Launch the application.
@@ -61,6 +63,8 @@ public class myFrame extends JFrame {
 		contentPane.setBackground(new Color(30, 144, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
+		
+		pm = new PassMan();
 
 		JLabel lblTitle = new JLabel("Level Seven");
 		lblTitle.setForeground(Color.WHITE);
@@ -97,7 +101,6 @@ public class myFrame extends JFrame {
 		btnLogin.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				PassMan pm = new PassMan();
 				username = txtUsername.getText();
 				password = String.valueOf(pwdPassword.getPassword()); 
 				int pass = pm.authenticateLogin(username, password);
@@ -113,12 +116,25 @@ public class myFrame extends JFrame {
 				}
 			}
 		});
-
-		JButton btnNewButton = new JButton("Lost Your Password?");
+		
+		JButton btnNewButton = new JButton("Register");
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				errorMessage.setText("Not implemented yet");
+				username = txtUsername.getText();
+				password = String.valueOf(pwdPassword.getPassword());
+				int pass = -1;
+				try {
+					pass = pm.addUser(username,password);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				if(pass == 0){
+					errorMessage.setText("Account has been created");
+				}
+				else if(pass == 3){
+					errorMessage.setText("Username has been taken");
+				}
 			}
 		});
 

@@ -20,6 +20,7 @@ public class PassMan {
 	final private static int MAX_USERNAME = 40;
 	final private static int MAX_PASSWORD = 40;
 	final private static int MAX_URL = 240;
+	final private static int KEY_EXIST = 3;
 	final private static int EMPTY_STRING = 2;
 	final private static int OVERFLOW_ERROR = 1;
 
@@ -179,7 +180,7 @@ public class PassMan {
 	public int addEntry(String url, String user, String pw) throws SQLException {
 		int pass = verifyInput(url, user, pw);
 		if(pass == 0){
-			String insertString = "INSERT INTO stored_accounts " + "(MASTER_USER,SITE,USERNAME,PASSWORD)"
+			String insertString = "INSERT INTO stored_accounts (MASTER_USER,SITE,USERNAME,PASSWORD)"
 					+ "values(?,?,?,?)";
 			PreparedStatement insertquery = connection.prepareStatement(insertString);
 			insertquery.setString(1, master_user);
@@ -190,6 +191,7 @@ public class PassMan {
 		}
 		return pass;
 	}
+
 	/**
 	 * Deletes the entry selected from passManagerWindow
 	 * @param url		the url given
@@ -253,5 +255,38 @@ public class PassMan {
 		return sucess;
 	}	
 
-	//new user
+	/**
+	 * Verifies the input is in character limit
+	 * Checks against database that username key does not exist
+	 * Adds to the database
+	 * @param user				the username to add
+	 * @param password			the password to add
+	 * @return					0 for success, 1 for overflow_error, 2 for empty_strings
+	 * 							3 for key_exist
+	 * @throws SQLException
+	 */
+	public int addUser(String user, String password) throws SQLException{ 	
+		int pass = verifyInput(user,password);
+		int rowCount = -1;
+		if(pass == 0){
+			String exist = "SELECT COUNT(*) FROM USER_LOGINS WHERE USERNAME = ?";
+			PreparedStatement checkName = connection.prepareStatement(exist);
+			checkName.setString(1, user);
+			ResultSet rs = checkName.executeQuery();
+			rs.next();
+			rowCount = rs.getInt(1);
+			if(rowCount == 0){
+				String insertString = "INSERT INTO USER_LOGINS (USERNAME, PASSWORD)" +
+						"VALUES (?,?)";
+				PreparedStatement insertQuery =  connection.prepareStatement(insertString);
+				insertQuery.setString(1, user);
+				insertQuery.setString(2, password);
+				insertQuery.executeUpdate();
+			}
+			else{
+				pass = KEY_EXIST;
+			}
+		}
+		return pass;
+	}
 }
