@@ -1,3 +1,6 @@
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -249,6 +252,50 @@ public class PassMan {
 
 		return true;
 	}
+	
+	/**
+	 * Obtains password for selected row. Copies to clipboard.
+	 * @param url			the URL of the selected account
+	 * @param username		the username of the selected account
+	 * @return				0 for success, -1 for error
+	 */
+	public static int obtainPass(String url, String username) {
+		int sucess = -1;
+		String password = "";
+		if (connection != null) {
+			// This prevents SQL injections as it uses correctly
+			// parameterized queries
+			PreparedStatement stmt = null;
+
+			// Start the timer
+			starttime = System.currentTimeMillis();
+
+			try {
+				// By using bind variables (question marks) and setString method
+				// SQL injection can be prevented
+				stmt = connection.prepareStatement("SELECT S.PASSWORD FROM STORED_ACCOUNTS S WHERE S.SITE=? AND S.USERNAME=?");
+				stmt.setString(1, url);
+				stmt.setString(2, username);
+				ResultSet rs = stmt.executeQuery();
+
+				if (rs.first()) {
+					password = rs.getString(1);
+					
+					StringSelection stringSelection = new StringSelection(password);
+					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+					clipboard.setContents (stringSelection, null);
+
+					sucess = 0;
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			// End the timer
+			endtime = System.currentTimeMillis();
+			totaltime = endtime - starttime;
+		}
+		return sucess;
+	}	
 	
 	//new user
 }

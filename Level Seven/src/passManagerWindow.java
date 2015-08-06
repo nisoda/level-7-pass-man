@@ -210,7 +210,7 @@ public class passManagerWindow extends JFrame {
 			if(rs.first()) {
 				do {
 					String[] rowData = new String[3]; 
-					for(int i = 0 ; i < 3 ; i++) {
+					for(int i = 0 ; i < 2 ; i++) {
 						rowData[i] = rs.getString(i + 1);
 					}
 					defaultModel.addRow(rowData);
@@ -225,8 +225,26 @@ public class passManagerWindow extends JFrame {
 		table.getColumnModel().getColumn(0).setPreferredWidth(270);
 		scrollPane.setViewportView(table);
 		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				boolean success = false;
+				int rowNum = -1;
+				try{
+					rowNum = table.getSelectedRow();
+					url = (String) table.getValueAt(rowNum, 0);
+					user = (String) table.getValueAt(rowNum,1);
+					pm.obtainPass(url, user);
+				}catch(IndexOutOfBoundsException ob){
+					message.setText("Nothing was selected");
+				}
+			}
+		});
+		
 		JPanel panel = new JPanel();
 		scrollPane.setRowHeaderView(panel);
 		contentPane.setLayout(gl_contentPane);
 	}
+	
+	
 }
