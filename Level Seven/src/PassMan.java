@@ -46,50 +46,6 @@ public class PassMan {
 		}
 	}
 
-	/**
-	 * Display the entire list
-	 */
-	public static void runSql() {
-		if (connection != null) {
-			try {
-				Statement stmt = null;
-
-				// start the timer
-				starttime = System.currentTimeMillis();
-
-				stmt = connection.createStatement();
-				ResultSet rs = stmt.executeQuery("Select * From stored_accounts");
-				ResultSetMetaData rsmd = rs.getMetaData();
-				// end the timer
-				endtime = System.currentTimeMillis();
-				totaltime = endtime - starttime;
-
-				stmt = connection.createStatement();
-
-				while (rs.next()) {
-					// ID, and MASTER_USER goes here maybe?
-					String website = rs.getString("Site");
-					String username = rs.getString("Username");
-					String password = rs.getString("Password");
-
-					// print the results
-					System.out.format("%s\n%s\n%s\n%s\n%s\n", "Website: " + website, "Username: " + username,
-							"Password: " + password);
-					System.out.println();
-				}
-
-				System.out.println("Result to connect: " + totaltimeconnect + " MS");
-				System.out.println("Result: " + totaltime + " MS");
-
-			} catch (SQLException e) {
-				System.out.println("Connection Failed! Check output console");
-				e.printStackTrace();
-			}
-		} else {
-			System.out.println("You are not connected.");
-		}
-	}
-
 /**
  * Authenticates the login provided from myFrame
  * Checks the string character length to prevent overflow 
@@ -136,6 +92,11 @@ public class PassMan {
 		return authenticate;
 	}
 
+	/**
+	 * Displays all stored accounts under the given username
+	 * @param username		the username of the master login
+	 * @return				ResultSet of all associated accounts
+	 */
 	public static ResultSet viewAllStored(String username) {
 		ResultSet rs = null;
 		if (connection != null) {
@@ -166,12 +127,10 @@ public class PassMan {
 	}
 	
 /**
- * /**
  * Verifies the length of the string to be below assigned limit
  * @param username		the username to be checked
  * @param password		the password to be checked
  * @return				0 for success, 1 for overflow_error
- * @return
  */
 	private static int verifyInput(String username, String password){
 		int verify = 1;
@@ -189,12 +148,12 @@ public class PassMan {
 	}
 /**
  * Verifies the length of the string to be below assigned limit
+ * @param url			the url to be checked
  * @param username		the username to be checked
  * @param password		the password to be checked
- * @param url			the url to be checked
  * @return				0 for success, 1 for overflow_error
  */
-	private int verifyInput(String username, String password, String url){
+	private int verifyInput(String url, String username, String password){
 		int verify = 1;
 		if(username.length() > MAX_USERNAME || password.length() > MAX_PASSWORD
 				|| url.length() > MAX_URL){
@@ -212,14 +171,14 @@ public class PassMan {
 /**
  * Verifies that username,password and url are in character limit
  * Adds it to the database if all was good
+ * @param url		the url to be added
  * @param user		the user name to be added
  * @param pw		the password to be added
- * @param url		the url to be added
  * @return			0 for success, 1 for overflow_error
  * @throws SQLException		if something was wrong with the sql server
  */
-	public int addEntry(String user, String pw, String url) throws SQLException {
-		int pass = verifyInput(user,pw,url);
+	public int addEntry(String url, String user, String pw) throws SQLException {
+		int pass = verifyInput(url, user, pw);
 		if(pass == 0){
 			String insertString = "INSERT INTO stored_accounts " + "(MASTER_USER,SITE,USERNAME,PASSWORD)"
 					+ "values(?,?,?,?)";
@@ -234,20 +193,18 @@ public class PassMan {
 	}
 /**
  * Deletes the entry selected from passManagerWindow
- * @param user		the username given
- * @param pw		the password given
  * @param url		the url given
+ * @param user		the username given
  * @return			if operation was successful
  * @throws SQLException		if something was wrong with the sql server
  */
-	public boolean delEntry(String user, String pw, String url) throws SQLException {
+	public boolean delEntry(String url, String user) throws SQLException {
 		String insertString = "DELETE FROM stored_accounts "
-				+ " where MASTER_USER = ? and SITE = ? and USERNAME = ? and PASSWORD = ?";
+				+ " where MASTER_USER = ? and SITE = ? and USERNAME = ?";
 		PreparedStatement insertquery = connection.prepareStatement(insertString);
 		insertquery.setString(1, master_user);
 		insertquery.setString(2, url);
 		insertquery.setString(3, user);
-		insertquery.setString(4, pw);
 		insertquery.executeUpdate();
 
 		return true;

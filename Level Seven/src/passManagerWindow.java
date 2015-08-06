@@ -84,7 +84,6 @@ public class passManagerWindow extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
-		String[] columns = {"Website", "Username", "Password"};
 		//Get data
 		final PassMan pm = new PassMan();
 		ResultSet rs = PassMan.viewAllStored(username);
@@ -104,7 +103,7 @@ public class passManagerWindow extends JFrame {
 				
 				if(lf.enteredData()){
 					try {
-						success = pm.addEntry(user, password, url);
+						success = pm.addEntry(url, user, password);
 					} catch (SQLException e1) {
 						message.setText("Error in your entry, please contact your administrator.");
 						e1.printStackTrace();
@@ -133,12 +132,11 @@ public class passManagerWindow extends JFrame {
 					rowNum = table.getSelectedRow();
 					url = (String) table.getValueAt(rowNum, 0);
 					user = (String) table.getValueAt(rowNum,1);
-					password = (String) table.getValueAt(rowNum,2);
 				}catch(IndexOutOfBoundsException ob){
 					message.setText("Nothing was selected");
 				}
 				try {
-					success = pm.delEntry(user, password, url);
+					success = pm.delEntry(url, user);
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
@@ -205,11 +203,11 @@ public class passManagerWindow extends JFrame {
 		
 		table = new JTable();
 		defaultModel = new DefaultTableModel();
-		defaultModel.setColumnIdentifiers(new String[] {"Website", "Username", "Password"});
+		defaultModel.setColumnIdentifiers(new String[] {"Website", "Username"});
 		try {
 			if(rs.first()) {
 				do {
-					String[] rowData = new String[3]; 
+					String[] rowData = new String[2]; 
 					for(int i = 0 ; i < 2 ; i++) {
 						rowData[i] = rs.getString(i + 1);
 					}
