@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 
 public class PassMan {
@@ -23,7 +22,7 @@ public class PassMan {
 	final private static int MAX_URL = 240;
 	final private static int EMPTY_STRING = 2;
 	final private static int OVERFLOW_ERROR = 1;
-	
+
 	private static String master_user;
 	// We'll have to change this, I assume it's probably the MASTER_USER
 	// and MASTER_PASS verification
@@ -46,14 +45,14 @@ public class PassMan {
 		}
 	}
 
-/**
- * Authenticates the login provided from myFrame
- * Checks the string character length to prevent overflow 
- * Checks with database to verify login is correct
- * @param username		the username of the login
- * @param password		the password of the login
- * @return				0 for success, 1 for overflow_error
- */
+	/**
+	 * Authenticates the login provided from myFrame
+	 * Checks the string character length to prevent overflow 
+	 * Checks with database to verify login is correct
+	 * @param username		the username of the login
+	 * @param password		the password of the login
+	 * @return				0 for success, 1 for overflow_error
+	 */
 	public static int authenticateLogin(String username, String password) {
 		int pass = verifyInput(username,password);
 		int authenticate = -1;
@@ -125,13 +124,13 @@ public class PassMan {
 			return null;
 		}
 	}
-	
-/**
- * Verifies the length of the string to be below assigned limit
- * @param username		the username to be checked
- * @param password		the password to be checked
- * @return				0 for success, 1 for overflow_error
- */
+
+	/**
+	 * Verifies the length of the string to be below assigned limit
+	 * @param username		the username to be checked
+	 * @param password		the password to be checked
+	 * @return				0 for success, 1 for overflow_error
+	 */
 	private static int verifyInput(String username, String password){
 		int verify = 1;
 		if(username.length() > MAX_USERNAME || password.length() > MAX_PASSWORD){
@@ -144,15 +143,15 @@ public class PassMan {
 			verify = 0;
 		}
 		return verify;
-		
+
 	}
-/**
- * Verifies the length of the string to be below assigned limit
- * @param url			the url to be checked
- * @param username		the username to be checked
- * @param password		the password to be checked
- * @return				0 for success, 1 for overflow_error
- */
+	/**
+	 * Verifies the length of the string to be below assigned limit
+	 * @param url			the url to be checked
+	 * @param username		the username to be checked
+	 * @param password		the password to be checked
+	 * @return				0 for success, 1 for overflow_error
+	 */
 	private int verifyInput(String url, String username, String password){
 		int verify = 1;
 		if(username.length() > MAX_USERNAME || password.length() > MAX_PASSWORD
@@ -168,15 +167,15 @@ public class PassMan {
 		}
 		return verify;
 	}
-/**
- * Verifies that username,password and url are in character limit
- * Adds it to the database if all was good
- * @param url		the url to be added
- * @param user		the user name to be added
- * @param pw		the password to be added
- * @return			0 for success, 1 for overflow_error
- * @throws SQLException		if something was wrong with the sql server
- */
+	/**
+	 * Verifies that username,password and url are in character limit
+	 * Adds it to the database if all was good
+	 * @param url		the url to be added
+	 * @param user		the user name to be added
+	 * @param pw		the password to be added
+	 * @return			0 for success, 1 for overflow_error
+	 * @throws SQLException		if something was wrong with the sql server
+	 */
 	public int addEntry(String url, String user, String pw) throws SQLException {
 		int pass = verifyInput(url, user, pw);
 		if(pass == 0){
@@ -191,13 +190,13 @@ public class PassMan {
 		}
 		return pass;
 	}
-/**
- * Deletes the entry selected from passManagerWindow
- * @param url		the url given
- * @param user		the username given
- * @return			if operation was successful
- * @throws SQLException		if something was wrong with the sql server
- */
+	/**
+	 * Deletes the entry selected from passManagerWindow
+	 * @param url		the url given
+	 * @param user		the username given
+	 * @return			if operation was successful
+	 * @throws SQLException		if something was wrong with the sql server
+	 */
 	public boolean delEntry(String url, String user) throws SQLException {
 		String insertString = "DELETE FROM stored_accounts "
 				+ " where MASTER_USER = ? and SITE = ? and USERNAME = ?";
@@ -209,7 +208,7 @@ public class PassMan {
 
 		return true;
 	}
-	
+
 	/**
 	 * Obtains password for selected row. Copies to clipboard.
 	 * @param url			the URL of the selected account
@@ -237,7 +236,7 @@ public class PassMan {
 
 				if (rs.first()) {
 					password = rs.getString(1);
-					
+
 					StringSelection stringSelection = new StringSelection(password);
 					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 					clipboard.setContents (stringSelection, null);
@@ -253,6 +252,6 @@ public class PassMan {
 		}
 		return sucess;
 	}	
-	
+
 	//new user
 }
