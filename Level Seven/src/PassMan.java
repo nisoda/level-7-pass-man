@@ -30,16 +30,11 @@ public class PassMan {
 	final private static int OVERFLOW_ERROR = 1;
 
 	private static String master_user;
-	// We'll have to change this, I assume it's probably the MASTER_USER
-	// and MASTER_PASS verification
-	// static String userInput; //Studio, Title, Type
-	// static int userNumber; //Year, Number of Episodes
 
 	public PassMan() {
 		try {
 			starttimeconnect = System.currentTimeMillis();
-			// Don't forget to change the password, it's at the end of the
-			// following line
+
 			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/PASSMAN", "root", "password");
 
 			// end timer
@@ -51,6 +46,13 @@ public class PassMan {
 		}
 	}
 
+	/**
+	 * Hashes the password provided from myFrame
+	 * 
+	 * @param password
+	 *            the password of the login
+	 * @return the generated password
+	 */
 	// Hash the password
 	private static String getPass(String passToHash, String salt) {
 		String genPass = null;
@@ -70,7 +72,13 @@ public class PassMan {
 		return genPass;
 	}
 
-	// Salt the password
+	/**
+	 * Salts the password provided from myFrame after it has been hashed
+	 * 
+	 * @param password
+	 *            the password of the login
+	 * @return salted password as a string
+	 */
 	private static String getSalt() throws NoSuchAlgorithmException, NoSuchProviderException {
 		SecureRandom secRand = SecureRandom.getInstance("SHA1PRNG", "SUN");
 		byte[] salt = new byte[16];
