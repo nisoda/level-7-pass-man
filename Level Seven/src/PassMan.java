@@ -118,25 +118,23 @@ public class PassMan {
 					ResultSet rs = stmt.executeQuery();
 
 					if (rs.first()) {
-						password = rs.getString(1);
+						password = rs.getString(3);
 						boolean passCheck = false;
-
-						StringSelection stringSelection = new StringSelection(password);
-						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-						clipboard.setContents (stringSelection, null);
 
 						String securePass = getPass(passToHash, salt);
 						String verifyPass = getPass(password, salt);
 
 						if (securePass.equals(verifyPass)) {
 							passCheck = true;
+							
+							master_user = username;
+							authenticate = 0;
+							
 						} else {
 							passCheck = false;
 							System.out.println("Error: Not the same password.");
 						}
 
-						master_user = username;
-						authenticate = 0;
 					}
 
 				} catch (SQLException e) {
