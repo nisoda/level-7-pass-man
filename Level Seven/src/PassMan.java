@@ -10,7 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 
 public class PassMan {
@@ -49,8 +48,7 @@ public class PassMan {
 	/**
 	 * Hashes the password provided from myFrame
 	 * 
-	 * @param password
-	 *            the password of the login
+	 * @param password the password of the login
 	 * @return the generated password
 	 */
 	// Hash the password
@@ -75,8 +73,7 @@ public class PassMan {
 	/**
 	 * Salts the password provided from myFrame after it has been hashed
 	 * 
-	 * @param password
-	 *            the password of the login
+	 * @param password the password of the login
 	 * @return salted password as a string
 	 */
 	private static String getSalt() throws NoSuchAlgorithmException, NoSuchProviderException {
@@ -87,25 +84,20 @@ public class PassMan {
 	}
 
 	/**
-	 * Authenticates the login provided from myFrame Checks the string character
-	 * length to prevent overflow Checks with database to verify login is
-	 * correct
-	 * 
-	 * @param username
-	 *            the username of the login
-	 * @param password
-	 *            the password of the login
-	 * @return 0 for success, 1 for overflow_error
+	 * Authenticates the login provided from myFrame
+	 * Checks the string character length to prevent overflow 
+	 * Checks with database to verify login is correct
+	 * @param username		the username of the login
+	 * @param password		the password of the login
+	 * @return				0 for success, 1 for overflow_error
 	 */
-	public static int authenticateLogin(String username, String password)
-			throws NoSuchAlgorithmException, NoSuchProviderException {
-		int pass = verifyInput(username, password);
+	@SuppressWarnings("unused")
+	public static int authenticateLogin(String username, String password) {
+		int pass = verifyInput(username,password);
 		int authenticate = -1;
 
-		boolean passCheck = false;
 		String passToHash = password;
-		String salt = getSalt();
-		if (pass == 0) {
+		if(pass == 0){
 			if (connection != null) {
 				// This prevents SQL injections as it uses correctly
 				// parameterized queries
@@ -116,47 +108,52 @@ public class PassMan {
 
 				try {
 
-					// By using bind variables (question marks) and setString
-					// method
+					String salt = getSalt();
+
+					// By using bind variables (question marks) and setString method
 					// SQL injection can be prevented
-					stmt = connection
-							.prepareStatement("SELECT * FROM USER_LOGINS U WHERE U.USERNAME=? AND U.PASSWORD=?");
+					stmt = connection.prepareStatement("SELECT * FROM USER_LOGINS U WHERE U.USERNAME=? AND U.PASSWORD=?");
 					stmt.setString(1, username);
 					stmt.setString(2, password);
 					ResultSet rs = stmt.executeQuery();
 
-					// Hashed and salted the user's password
-					String securePass = getPass(passToHash, salt);
-					String verifyPass = getPass((rs.getString(2)), salt);
-
-					if (securePass.equals(verifyPass)) {
-						passCheck = true;
-					} else {
-						passCheck = false;
-						System.out.println("Error: Not the same password.");
-					}
-
 					if (rs.first()) {
+						password = rs.getString(1);
+						boolean passCheck = false;
+
+						StringSelection stringSelection = new StringSelection(password);
+						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+						clipboard.setContents (stringSelection, null);
+
+						String securePass = getPass(passToHash, salt);
+						String verifyPass = getPass(password, salt);
+
+						if (securePass.equals(verifyPass)) {
+							passCheck = true;
+						} else {
+							passCheck = false;
+							System.out.println("Error: Not the same password.");
+						}
+
 						master_user = username;
 						authenticate = 0;
 					}
 
-					// Close everything
-					rs.close();
-					stmt.close();
-					connection.close();
-
 				} catch (SQLException e) {
-					System.out.println("Connection Failed! Check output console");
+					e.printStackTrace();
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchProviderException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 				// End the timer
 				endtime = System.currentTimeMillis();
 				totaltime = endtime - starttime;
-
 			}
-		} else if (pass == 1) {
+		}
+		else if(pass == 1){
 			authenticate = 1;
 		}
 		return authenticate;
@@ -164,10 +161,8 @@ public class PassMan {
 
 	/**
 	 * Displays all stored accounts under the given username
-	 * 
-	 * @param username
-	 *            the username of the master login
-	 * @return ResultSet of all associated accounts
+	 * @param username		the username of the master login
+	 * @return				ResultSet of all associated accounts
 	 */
 	public static ResultSet viewAllStored(String username) {
 		ResultSet rs = null;
@@ -200,66 +195,58 @@ public class PassMan {
 
 	/**
 	 * Verifies the length of the string to be below assigned limit
-	 * 
-	 * @param username
-	 *            the username to be checked
-	 * @param password
-	 *            the password to be checked
-	 * @return 0 for success, 1 for overflow_error
+	 * @param username		the username to be checked
+	 * @param password		the password to be checked
+	 * @return				0 for success, 1 for overflow_error
 	 */
-	private static int verifyInput(String username, String password) {
+	private static int verifyInput(String username, String password){
 		int verify = 1;
-		if (username.length() > MAX_USERNAME || password.length() > MAX_PASSWORD) {
+		if(username.length() > MAX_USERNAME || password.length() > MAX_PASSWORD){
 			verify = OVERFLOW_ERROR;
-		} else if (username.length() == 0 || password.length() == 0) {
+		}
+		else if(username.length() == 0 || password.length() == 0){
 			verify = EMPTY_STRING;
-		} else {
+		}
+		else{
 			verify = 0;
 		}
 		return verify;
 
 	}
-
 	/**
 	 * Verifies the length of the string to be below assigned limit
-	 * 
-	 * @param url
-	 *            the url to be checked
-	 * @param username
-	 *            the username to be checked
-	 * @param password
-	 *            the password to be checked
-	 * @return 0 for success, 1 for overflow_error
+	 * @param url			the url to be checked
+	 * @param username		the username to be checked
+	 * @param password		the password to be checked
+	 * @return				0 for success, 1 for overflow_error
 	 */
-	private int verifyInput(String url, String username, String password) {
+	private int verifyInput(String url, String username, String password){
 		int verify = 1;
-		if (username.length() > MAX_USERNAME || password.length() > MAX_PASSWORD || url.length() > MAX_URL) {
+		if(username.length() > MAX_USERNAME || password.length() > MAX_PASSWORD
+				|| url.length() > MAX_URL){
 			verify = OVERFLOW_ERROR;
-		} else if (username.length() == 0 || password.length() == 0 || url.length() == 0) {
+		}
+		else if(username.length() == 0 || password.length() == 0
+				|| url.length() == 0){
 			verify = EMPTY_STRING;
-		} else {
+		}
+		else{
 			verify = 0;
 		}
 		return verify;
 	}
-
 	/**
-	 * Verifies that username,password and url are in character limit Adds it to
-	 * the database if all was good
-	 * 
-	 * @param url
-	 *            the url to be added
-	 * @param user
-	 *            the user name to be added
-	 * @param pw
-	 *            the password to be added
-	 * @return 0 for success, 1 for overflow_error
-	 * @throws SQLException
-	 *             if something was wrong with the sql server
+	 * Verifies that username,password and url are in character limit
+	 * Adds it to the database if all was good
+	 * @param url		the url to be added
+	 * @param user		the user name to be added
+	 * @param pw		the password to be added
+	 * @return			0 for success, 1 for overflow_error
+	 * @throws SQLException		if something was wrong with the sql server
 	 */
 	public int addEntry(String url, String user, String pw) throws SQLException {
 		int pass = verifyInput(url, user, pw);
-		if (pass == 0) {
+		if(pass == 0){
 			String insertString = "INSERT INTO stored_accounts (MASTER_USER,SITE,USERNAME,PASSWORD)"
 					+ "values(?,?,?,?)";
 			PreparedStatement insertquery = connection.prepareStatement(insertString);
@@ -274,17 +261,14 @@ public class PassMan {
 
 	/**
 	 * Deletes the entry selected from passManagerWindow
-	 * 
-	 * @param url
-	 *            the url given
-	 * @param user
-	 *            the username given
-	 * @return if operation was successful
-	 * @throws SQLException
-	 *             if something was wrong with the sql server
+	 * @param url		the url given
+	 * @param user		the username given
+	 * @return			if operation was successful
+	 * @throws SQLException		if something was wrong with the sql server
 	 */
 	public boolean delEntry(String url, String user) throws SQLException {
-		String insertString = "DELETE FROM stored_accounts " + " where MASTER_USER = ? and SITE = ? and USERNAME = ?";
+		String insertString = "DELETE FROM stored_accounts "
+				+ " where MASTER_USER = ? and SITE = ? and USERNAME = ?";
 		PreparedStatement insertquery = connection.prepareStatement(insertString);
 		insertquery.setString(1, master_user);
 		insertquery.setString(2, url);
@@ -296,12 +280,9 @@ public class PassMan {
 
 	/**
 	 * Obtains password for selected row. Copies to clipboard.
-	 * 
-	 * @param url
-	 *            the URL of the selected account
-	 * @param username
-	 *            the username of the selected account
-	 * @return 0 for success, -1 for error
+	 * @param url			the URL of the selected account
+	 * @param username		the username of the selected account
+	 * @return				0 for success, -1 for error
 	 */
 	public static int obtainPass(String url, String username) {
 		int sucess = -1;
@@ -317,8 +298,7 @@ public class PassMan {
 			try {
 				// By using bind variables (question marks) and setString method
 				// SQL injection can be prevented
-				stmt = connection
-						.prepareStatement("SELECT S.PASSWORD FROM STORED_ACCOUNTS S WHERE S.SITE=? AND S.USERNAME=?");
+				stmt = connection.prepareStatement("SELECT S.PASSWORD FROM STORED_ACCOUNTS S WHERE S.SITE=? AND S.USERNAME=?");
 				stmt.setString(1, url);
 				stmt.setString(2, username);
 				ResultSet rs = stmt.executeQuery();
@@ -328,7 +308,7 @@ public class PassMan {
 
 					StringSelection stringSelection = new StringSelection(password);
 					Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-					clipboard.setContents(stringSelection, null);
+					clipboard.setContents (stringSelection, null);
 
 					sucess = 0;
 				}
@@ -340,37 +320,37 @@ public class PassMan {
 			totaltime = endtime - starttime;
 		}
 		return sucess;
-	}
+	}	
 
 	/**
-	 * Verifies the input is in character limit Checks against database that
-	 * username key does not exist Adds to the database
-	 * 
-	 * @param user
-	 *            the username to add
-	 * @param password
-	 *            the password to add
-	 * @return 0 for success, 1 for overflow_error, 2 for empty_strings 3 for
-	 *         key_exist
+	 * Verifies the input is in character limit
+	 * Checks against database that username key does not exist
+	 * Adds to the database
+	 * @param user				the username to add
+	 * @param password			the password to add
+	 * @return					0 for success, 1 for overflow_error, 2 for empty_strings
+	 * 							3 for key_exist
 	 * @throws SQLException
 	 */
-	public int addUser(String user, String password) throws SQLException {
-		int pass = verifyInput(user, password);
+	public int addUser(String user, String password) throws SQLException{ 	
+		int pass = verifyInput(user,password);
 		int rowCount = -1;
-		if (pass == 0) {
+		if(pass == 0){
 			String exist = "SELECT COUNT(*) FROM USER_LOGINS WHERE USERNAME = ?";
 			PreparedStatement checkName = connection.prepareStatement(exist);
 			checkName.setString(1, user);
 			ResultSet rs = checkName.executeQuery();
 			rs.next();
 			rowCount = rs.getInt(1);
-			if (rowCount == 0) {
-				String insertString = "INSERT INTO USER_LOGINS (USERNAME, PASSWORD)" + "VALUES (?,?)";
-				PreparedStatement insertQuery = connection.prepareStatement(insertString);
+			if(rowCount == 0){
+				String insertString = "INSERT INTO USER_LOGINS (USERNAME, PASSWORD)" +
+						"VALUES (?,?)";
+				PreparedStatement insertQuery =  connection.prepareStatement(insertString);
 				insertQuery.setString(1, user);
 				insertQuery.setString(2, password);
 				insertQuery.executeUpdate();
-			} else {
+			}
+			else{
 				pass = KEY_EXIST;
 			}
 		}
