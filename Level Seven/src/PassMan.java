@@ -1,6 +1,10 @@
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -25,16 +29,13 @@ public class PassMan {
 	final private static int OVERFLOW_ERROR = 1;
 
 	private static String master_user;
-	// We'll have to change this, I assume it's probably the MASTER_USER
-	// and MASTER_PASS verification
-	// static String userInput; //Studio, Title, Type
-	// static int userNumber; //Year, Number of Episodes
 
 	public PassMan() {
 		try {
+			
+			// Start the timer
 			starttimeconnect = System.currentTimeMillis();
-			// Don't forget to change the password, it's at the end of the
-			// following line
+
 			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/PASSMAN", "root", "password");
 
 			// end timer
@@ -44,6 +45,43 @@ public class PassMan {
 			System.out.println("Connection Failed! Check output console");
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Hashes the password provided from myFrame
+	 * 
+	 * @param password the password of the login
+	 * @return the generated password
+	 */
+	private static String getPass(String passToHash, String salt) {
+		String genPass = null;
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(salt.getBytes());
+			byte[] bytes = md.digest(passToHash.getBytes());
+
+			StringBuilder strBuild = new StringBuilder();
+			for (int i = 0; i < bytes.length; i++) {
+				strBuild.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			genPass = strBuild.toString();
+		} catch (NoSuchAlgorithmException ne) {
+			ne.printStackTrace();
+		}
+		return genPass;
+	}
+
+	/**
+	 * Salts the password provided from myFrame after it has been hashed
+	 * 
+	 * @param password the password of the login
+	 * @return salted password as a string
+	 */
+	private static String getSalt() throws NoSuchAlgorithmException, NoSuchProviderException {
+		SecureRandom secRand = SecureRandom.getInstance("SHA1PRNG", "SUN");
+		byte[] salt = new byte[16];
+		secRand.nextBytes(salt);
+		return salt.toString();
 	}
 
 	/**
@@ -57,6 +95,8 @@ public class PassMan {
 	public static int authenticateLogin(String username, String password) {
 		int pass = verifyInput(username,password);
 		int authenticate = -1;
+
+		String passToHash = password;
 		if(pass == 0){
 			if (connection != null) {
 				// This prevents SQL injections as it uses correctly
@@ -67,6 +107,9 @@ public class PassMan {
 				starttime = System.currentTimeMillis();
 
 				try {
+
+					String salt = getSalt();
+
 					// By using bind variables (question marks) and setString method
 					// SQL injection can be prevented
 					stmt = connection.prepareStatement("SELECT * FROM USER_LOGINS U WHERE U.USERNAME=? AND U.PASSWORD=?");
@@ -75,11 +118,28 @@ public class PassMan {
 					ResultSet rs = stmt.executeQuery();
 
 					if (rs.first()) {
-						master_user = username;
-						authenticate = 0;
+						password = rs.getString(3);
+
+						String securePass = getPass(passToHash, salt);
+						String verifyPass = getPass(password, salt);
+
+						if (securePass.equals(verifyPass)) {
+
+							master_user = username;
+							authenticate = 0;
+							
+						} else {
+							System.out.println("Error: Not the same password.");
+						}
+
 					}
+
 				} catch (SQLException e) {
 					e.printStackTrace();
+				} catch (NoSuchAlgorithmException ne) {
+					ne.printStackTrace();
+				} catch (NoSuchProviderException npe) {
+					npe.printStackTrace();
 				}
 				// End the timer
 				endtime = System.currentTimeMillis();

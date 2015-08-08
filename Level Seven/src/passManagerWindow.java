@@ -55,7 +55,6 @@ public class passManagerWindow extends JFrame {
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				// Not connected to DB, maybe create a window for input?
 				message.setText("");
 				LoginForm lf = new LoginForm();
 				int success = -1;
@@ -177,7 +176,6 @@ public class passManagerWindow extends JFrame {
 				} while (rs.next());				
 			}
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}	
 		table.setAutoCreateRowSorter(true);
