@@ -32,6 +32,8 @@ public class PassMan {
 
 	public PassMan() {
 		try {
+			
+			// Start the timer
 			starttimeconnect = System.currentTimeMillis();
 
 			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/PASSMAN", "root", "password");
@@ -51,7 +53,6 @@ public class PassMan {
 	 * @param password the password of the login
 	 * @return the generated password
 	 */
-	// Hash the password
 	private static String getPass(String passToHash, String salt) {
 		String genPass = null;
 		try {
@@ -91,7 +92,6 @@ public class PassMan {
 	 * @param password		the password of the login
 	 * @return				0 for success, 1 for overflow_error
 	 */
-	@SuppressWarnings("unused")
 	public static int authenticateLogin(String username, String password) {
 		int pass = verifyInput(username,password);
 		int authenticate = -1;
@@ -119,19 +119,16 @@ public class PassMan {
 
 					if (rs.first()) {
 						password = rs.getString(3);
-						boolean passCheck = false;
 
 						String securePass = getPass(passToHash, salt);
 						String verifyPass = getPass(password, salt);
 
 						if (securePass.equals(verifyPass)) {
-							passCheck = true;
-							
+
 							master_user = username;
 							authenticate = 0;
 							
 						} else {
-							passCheck = false;
 							System.out.println("Error: Not the same password.");
 						}
 
@@ -139,12 +136,10 @@ public class PassMan {
 
 				} catch (SQLException e) {
 					e.printStackTrace();
-				} catch (NoSuchAlgorithmException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchProviderException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (NoSuchAlgorithmException ne) {
+					ne.printStackTrace();
+				} catch (NoSuchProviderException npe) {
+					npe.printStackTrace();
 				}
 				// End the timer
 				endtime = System.currentTimeMillis();
