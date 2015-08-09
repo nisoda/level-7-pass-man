@@ -1,5 +1,35 @@
 README.txt
 
+Assignment 5 (Version 3)
+Team: Level Seven
+Project: Password Manager
+
+*** Test data instructions and scripts are include in this
+    repository: level-7-pass-man/test-data ***
+
+Who Did What:
+Nhuc Chau
+- Patched Buffer Overflow vulnerability
+- Implemented "Register" feature
+- Completed Home/Contact Us sections in Wiki
+
+Nicole Isoda
+- Patched Sensitive Data Exposure vulnerability in UI
+- Reviewed/managed issues and pull requests
+- Verified/compiled materials for final project submission
+
+Lauren Ogawa
+- Created password salt/hash in authentication
+- Completed User Guide section in Wiki
+- Compiled FDR Findings
+
+What Is Not Yet Completed:
+- Manage sub-user accounts (for enterprise use)
+
+------------------------------------------------------------------------------------------------------------
+
+README.txt
+
 Assignment 4 (Version 2)
 Team: Level Seven
 Project: Password Manager
