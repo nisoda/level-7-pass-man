@@ -26,6 +26,12 @@ Lauren Ogawa
 What Is Not Yet Completed:
 - Manage sub-user accounts (for enterprise use)
 
+Final Thoughts:
+Our application is functional for local usage. We would
+like to consider migrating this application to a server/
+web-based application, but we will need to reevaluate
+any new security risks that may propose.
+
 ------------------------------------------------------------------------------------------------------------
 
 README.txt
